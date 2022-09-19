@@ -1,6 +1,6 @@
 # My Node.js & Express.js Documentation
 
-### Total Chapters are following
+## Total Chapters are following
 
 1. Node.js
    1. Introduction to the playlist
@@ -29,13 +29,13 @@
    13. express static Middlewares
    14. MVC pattern
 
-<br />
-
 ## Chapter 1: Node.js
 
-### [1.2 Introduction to Node.js & setup](https://youtu.be/36R0VXmX8i8)
+### [1.1 Introduction to Node.js & setup](https://youtu.be/36R0VXmX8i8)
 
 #### What is Node.js & Why Node.js?
+
+- window is a global object for browser. before node.js we could use javascript for the browser only but now with the help of node.js we can run javascript for accessing our local machine. try console.log(), window.alert() at the browser and in the terminal.
 
 - Node.js is server side environment; not a programming language.
 - It helps to manage files (create, open, read, write, delete and close) on the server.
@@ -43,18 +43,24 @@
 - it helps to collect form data.
 - It helps to manage (add, modify, delete data) database.
 - fullstack = front-end + back-end
+- It utilize Google's V8 engine (developed with C++) which compiles javascript code into machine code
+- helps us to create real time applications
 
 #### Environment setup
 
-- check node is already installed or not using the command: node --version
+- check node is already installed or not using the command: node --version or node -v
 - [Node.js](https://nodejs.org/en/) download & install
 - Editor: anything; I prefer [Visual Studio Code](https://code.visualstudio.com/)
+- type node and enter for using Node REPL and try writing some javascript code here like console.log(), mathematical calculations
+- window is a global object in the fornt end; global is the global object in the backend
 
 ### [1.3 Local module](https://youtu.be/n3F1kaOfyzw)
 
 #### What is module? Types of module?
 
+- when you have too much code in a single file you would like to separate them in multiple files so that they are reusable and modular.
 - Module is a set of functions or variables.
+- console.log(process) and find the module.exports = {}
 - 3 types of module.
   - local module (own created module)
   - built-in-modules (node.js own module)
@@ -101,6 +107,17 @@
   const { SUBJECT, displayInfo } = require("./message");
   console.log(SUBJECT);
   displayInfo("anisul");
+
+  // another example
+  exports.add = (num1, num2) => {
+    return num1 + num2;
+  };
+  exports.sub = (num1, num2) => {
+    return num1 - num2;
+  };
+  exports.mul = (num1, num2) => {
+    return num1 * num2;
+  };
   ```
 
 ### [1.4 Built-in module - fs module](https://youtu.be/808jcN3c8MM)
@@ -114,6 +131,7 @@
 
   // creating a file
   fs.writeFile("test.txt", "this is some demo text", (err) => {
+    // if there is 1 if else then use ternary operator
     if (err) {
       console.log(err);
     } else {
@@ -197,9 +215,11 @@
 - Example of a node.js http server
 
   ```js
+  // Method 1
   const http = require("http");
 
   const PORT = 3000;
+  const hostName = "127.0.0.1";
 
   const server = http.createServer((req, res) => {
     // res.end("welcome to the server");
@@ -207,12 +227,23 @@
   });
 
   server.listen(PORT, () => {
-    console.log(`server is running at http://localhost:${PORT}`);
+    console.log(`server is running at http://${hostName}:${PORT}`);
   });
+
+  // Method 2
+  const http = require("http");
+  http
+    .createServer((req, res) => {
+      res.end("<h1> Welcome to your first node server</h1>");
+    })
+    .listen(3000, () => {
+      console.log("server is running");
+    });
   ```
 
 ### [1.7 request, response and status code](https://youtu.be/lHfnjUP-N4E)
 
+- [status code cheatsheet](https://devhints.io/http-status)
 - Example
 
   ```js
@@ -386,12 +417,94 @@
 
 ### [1.10 create node server and deploy on heroku](https://youtu.be/2IFDMvfJJHc)
 
-<br />
+- [node-server-demo](https://node-server-2022.herokuapp.com/)
+
+- Create 3 html pages inside views folder: index.html, about.html, contact.html
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+
+      <style>
+        body {
+          background-color: bisque;
+        }
+      </style>
+    </head>
+    <body>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+      <h1>This is Home page</h1>
+    </body>
+  </html>
+  ```
+
+- create the server (server) and load the html files based on request url
+
+  ```js
+  const http = require("http");
+  const fs = require("fs");
+  const PORT = 3000;
+
+  const handleReadFile = (fileName, statusCode, req, res) => {
+    fs.readFile(fileName, "utf-8", (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.writeHead(statusCode, { "Contant-Type": "text/plian" });
+        res.write(data);
+        res.end();
+      }
+    });
+  };
+  const server = http.createServer((req, res) => {
+    if (req.url === "/") {
+      handleReadFile("./views/index.html", 200, req, res);
+    } else if (req.url === "/about") {
+      handleReadFile("./views/about.html", 200, req, res);
+    } else if (req.url === "/contact") {
+      handleReadFile("./views/contact.html", 200, req, res);
+    } else {
+      handleReadFile("./views/error.html", 404, req, res);
+    }
+  });
+
+  server.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
+  });
+  ```
+
+- How to deploy on heroku
+  - step1 : const PORT = process.env.PORT || 3000;
+  - step2 : add Procfile -> `web: node index.js`
+  - step3 : npm init -y && npm install nodemon
+  - step4 : follow the steps in heroku
+
+### [1.11 Node js event loop]
+
+- Node.js is single threaded but non-blocking beacuse of event loop.
+- it is efficient because of its non blocking feature
+- all the events are placed in a stack (first in first out FIFO)
+- Node.js keep running like FIFO, one after one event is handles by node process
+- if any task required time instead of stop and wait it will be passed to callback function and then move to the next task
+- once all the tasks are handled then from the event loop task will be executed
+- synchronous vs asynchronous programming
 
 ## Chapter 2: Express.js
 
 ### [2.1 Introduction to express.js](https://youtu.be/1Max9huISzA)
 
+- always check the documentation of [express.js](https://www.npmjs.com/package/express)
 - Express.js is a node.js framework which makes life easier
 - easy to learn and time saving facilitites available because we have ready made stuff in express.js
 - MERN Stack, NERD stack, PERN stack
@@ -722,155 +835,163 @@
 
 ### [2.14 MVC Architecture](https://youtu.be/BDeBB9b2L9I)
 
-- MVC Architecture means Model View Controller Architecture 
+- MVC Architecture means Model View Controller Architecture
 - Model holds all the database related codes
 - View is what users see
 - Controller is the connection point between Model and View. basically It deals with all the logic.
 - example of mvc file structure: setup a project and install necessary packages ( npm init -y && npm install nodemon express body-parser cors)
-   - <img width="203" alt="Screenshot 2022-04-26 at 05 13 08" src="https://user-images.githubusercontent.com/28184926/165205917-0b83ecc1-9145-40ac-b92f-b8e8cb7511b4.png">
-controllers
-     - user.controller.js
-        ```js
-            const path = require("path");
-            const users = require("../models/user.model");
 
-            const getUser = (req, res) => {
-              res.status(200).json({
-                users,
-              });
-            };
+  - <img width="203" alt="Screenshot 2022-04-26 at 05 13 08" src="https://user-images.githubusercontent.com/28184926/165205917-0b83ecc1-9145-40ac-b92f-b8e8cb7511b4.png">
+    controllers
+         - user.controller.js
+            ```js
+                const path = require("path");
+                const users = require("../models/user.model");
 
-            const createUser = (req, res) => {
-              const user = {
-                username: req.body.username,
-                email: req.body.email,
-              };
-              users.push(user);
-              res.status(201).json(users);
-            };
+                const getUser = (req, res) => {
+                  res.status(200).json({
+                    users,
+                  });
+                };
 
-            module.exports = { getUser, createUser };         
-        ```
-   - models
-      - user.model.js
-           ```js
-               const users = [
-                 {
-                   username: "anisul islam",
-                   email: "lalalal@yahoo.com",
-                 },
-                 {
-                   username: "rakibul islam",
-                   email: "lalalal@yahoo.com",
-                 },
-               ];
-               module.exports = users;         
-           ```
-   - routes
-       - user.route.js
-           ```js
-               const express = require("express");
-               const { getUser, createUser } = require("../controllers/user.controller");
-               const router = express.Router();
+                const createUser = (req, res) => {
+                  const user = {
+                    username: req.body.username,
+                    email: req.body.email,
+                  };
+                  users.push(user);
+                  res.status(201).json(users);
+                };
 
-               router.get("/", getUser);
-               router.post("/", createUser);
+                module.exports = { getUser, createUser };
+            ```
 
-               module.exports = router;
-           ```
-   - views
-      - index.html
-         ```html
-            <!DOCTYPE html>
-            <html lang="en">
-              <head>
-                <meta charset="UTF-8" />
-                <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Document</title>
-              </head>
-              <body>
-                <nav>
-                  <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/api/users">Register</a></li>
-                  </ul>
-                </nav>
-                <h1>Home Page</h1>
-              </body>
-            </html>
-         ```
-         - user.html
-         ```html
-            <!DOCTYPE html>
-            <html lang="en">
-              <head>
-                <meta charset="UTF-8" />
-                <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                <meta name="viewport" content="width=], initial-scale=1.0" />
-                <title>Document</title>
-              </head>
-              <body>
-                <nav>
-                  <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/api/users">Register</a></li>
-                  </ul>
-                </nav>
-                <h1>User Registration</h1>
-                <form action="/api/user" method="post">
-                  <input type="text" name="username" placeholder="username" />
-                  <input type="email" name="email" placeholder="email" />
-                  <button type="submit">register</button>
-                </form>
-              </body>
-            </html>
-         ```
-   - .env
-      - `PORT=4000`
-   - app.js
+  - models
+    - user.model.js
       ```js
-         const express = require("express");
-         const cors = require("cors");
-         const app = express();
-         const bodyParser = require("body-parser");
-         const userRouter = require("./routes/user.route");
-         // CORS
-         app.use(bodyParser.urlencoded({ extended: true }));
-         app.use(bodyParser.json());
-         app.use(cors());
-
-         app.use("/api/users", userRouter);
-
-         app.get("/", (req, res) => {
-           res.sendFile(__dirname + "/views/index.html");
-         });
-
-         // routes not found error
-         app.use((req, res, next) => {
-           res.status(404).json({
-             message: "resource not found",
-           });
-         });
-
-         // server error
-         app.use((err, req, res, next) => {
-           console.log(err);
-           res.status(500).json({
-             message: "something broke",
-           });
-         });
-
-         module.exports = app;
-
+      const users = [
+        {
+          username: "anisul islam",
+          email: "lalalal@yahoo.com",
+        },
+        {
+          username: "rakibul islam",
+          email: "lalalal@yahoo.com",
+        },
+      ];
+      module.exports = users;
       ```
-   - index.js
+  - routes
+
+    - user.route.js
+
       ```js
-         require("dotenv").config();
-         const app = require("./app");
-         const PORT = process.env.PORT || 5000;
-         app.listen(PORT, () => {
-           console.log(`server is running at http://localhost:${PORT}`);
-         });
+      const express = require("express");
+      const { getUser, createUser } = require("../controllers/user.controller");
+      const router = express.Router();
+
+      router.get("/", getUser);
+      router.post("/", createUser);
+
+      module.exports = router;
       ```
 
+  - views
+    - index.html
+      ```html
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+          <title>Document</title>
+        </head>
+        <body>
+          <nav>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/api/users">Register</a></li>
+            </ul>
+          </nav>
+          <h1>Home Page</h1>
+        </body>
+      </html>
+      ```
+      - user.html
+      ```html
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=], initial-scale=1.0" />
+          <title>Document</title>
+        </head>
+        <body>
+          <nav>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/api/users">Register</a></li>
+            </ul>
+          </nav>
+          <h1>User Registration</h1>
+          <form action="/api/user" method="post">
+            <input type="text" name="username" placeholder="username" />
+            <input type="email" name="email" placeholder="email" />
+            <button type="submit">register</button>
+          </form>
+        </body>
+      </html>
+      ```
+  - .env
+    - `PORT=4000`
+  - app.js
+
+    ```js
+    const express = require("express");
+    const cors = require("cors");
+    const app = express();
+    const bodyParser = require("body-parser");
+    const userRouter = require("./routes/user.route");
+    // CORS
+    app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+    app.use(cors());
+
+    app.use("/api/users", userRouter);
+
+    app.get("/", (req, res) => {
+      res.sendFile(__dirname + "/views/index.html");
+    });
+
+    // routes not found error
+    app.use((req, res, next) => {
+      res.status(404).json({
+        message: "resource not found",
+      });
+    });
+
+    // server error
+    app.use((err, req, res, next) => {
+      console.log(err);
+      res.status(500).json({
+        message: "something broke",
+      });
+    });
+
+    module.exports = app;
+    ```
+
+  - index.js
+    ```js
+    require("dotenv").config();
+    const app = require("./app");
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`server is running at http://localhost:${PORT}`);
+    });
+    ```
