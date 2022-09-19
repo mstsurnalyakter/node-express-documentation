@@ -575,6 +575,16 @@
   app.listen(PORT, () => {
     console.log(`server is running at http://localhost:${PORT}`);
   });
+
+  // error handling
+  app.use((req, res) => {
+    res.send("<h2>Page not found 404</h2>");
+  });
+
+  app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send("Something broke!");
+  });
   ```
 
 ### [2.4 Express Router](https://youtu.be/S7oFcdUiF1k)
