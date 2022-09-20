@@ -58,6 +58,7 @@
 
 #### What is module? Types of module?
 
+- we can use es6 import, export by adding "type":"module" in package.json
 - when you have too much code in a single file you would like to separate them in multiple files so that they are reusable and modular.
 - Module is a set of functions or variables.
 - console.log(process) and find the module.exports = {}
@@ -560,6 +561,9 @@
     res.send("<h1> Welcome to post request of express server </h1>");
   });
 
+  // put is for updating multiple property
+  // patch is for updating one property
+
   app.put("/user", (req, res) => {
     res.send("<h1> Welcome to put request of express server </h1>");
   });
@@ -636,6 +640,31 @@
   app.listen(PORT, () => {
     console.log(`server is running at http://localhost:${PORT}`);
   });
+  ```
+
+- example 2
+
+  ```js
+  const express = require("express");
+  const router = express.Router();
+
+  // how to get the path
+  const path = require("path");
+
+  const getFileLocation = (fileName) => {
+    return path.join(__dirname, `../views/${fileName}`);
+  };
+
+  router.get("/", (req, res) => {
+    res.sendFile(getFileLocation("index.html"));
+  });
+  router.get("/register", (req, res) => {
+    res.sendFile(getFileLocation("register.html"));
+  });
+  router.get("/login", (req, res) => {
+    res.sendFile(getFileLocation("login.html"));
+  });
+  module.exports = router;
   ```
 
 ### [2.5 HTTP Response](https://youtu.be/S7oFcdUiF1k)
