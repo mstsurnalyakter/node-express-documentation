@@ -35,16 +35,17 @@
 
 #### What is Node.js & Why Node.js?
 
+- fullstack = front-end + back-end
 - window is a global object for browser. before node.js we could use javascript for the browser only but now with the help of node.js we can run javascript for accessing our local machine. try console.log(), window.alert() at the browser and in the terminal.
-
 - Node.js is server side environment; not a programming language.
+- It utilize Google's V8 engine (developed with C++) which compiles javascript code into machine code
+- a js runtime which allows us to run js in the server
+- node.js does not run on browser but only vanila js
+- helps us to create real time applications
 - It helps to manage files (create, open, read, write, delete and close) on the server.
 - it supports asynchronous programming.
 - it helps to collect form data.
 - It helps to manage (add, modify, delete data) database.
-- fullstack = front-end + back-end
-- It utilize Google's V8 engine (developed with C++) which compiles javascript code into machine code
-- helps us to create real time applications
 
 #### Environment setup
 
@@ -500,6 +501,20 @@
 - if any task required time instead of stop and wait it will be passed to callback function and then move to the next task
 - once all the tasks are handled then from the event loop task will be executed
 - synchronous vs asynchronous programming
+- example
+
+  ```js
+  console.log("hello 1");
+  console.log("hello 2");
+  setTimeout(() => {
+    console.log("hello 3");
+  }, 1000);
+  setTimeout(() => {
+    console.log("hello 4");
+  }, 1000);
+  console.log("hello 5");
+  console.log("hello 6");
+  ```
 
 ## Chapter 2: Express.js
 
@@ -553,6 +568,11 @@
 
   // http://localhost:3000/user
 
+  // this will work for all http methods: get, post so use app.get() or anything specific
+  app.use("/user", (req, res) => {
+    res.send("<h1> Welcome to get request of express server </h1>");
+  });
+
   app.get("/user", (req, res) => {
     res.send("<h1> Welcome to get request of express server </h1>");
   });
@@ -592,6 +612,14 @@
   ```
 
 ### [2.4 Express Router](https://youtu.be/S7oFcdUiF1k)
+
+- use morgan package for getting more info about routing on console
+
+  ```js
+     step1 : npm install morgan
+     step2 : const morgan = require("morgan");
+     step3 : app.use(morgan("dev"));
+  ```
 
 - example
 
@@ -686,30 +714,37 @@
 - request with route parameters - req.params.parameterName
 - request with headers - req.header(key)
 - request with json data / form data inside body - req.body.parameterName
-- example of query parameter
-  - http://localhost:3000?id=101&name=anisul islam
-  - we can get the value using req.query.id and req.query.name
-  ```js
-  router.post("/", (req, res) => {
-    console.log(req.query);
-    console.log(req.query.id);
-    console.log(req.query.name);
-    res.send("I am get method of user route");
-  });
-  ```
+- query parameter has question mark; search something on google.
+
+  - example of query parameter - http://localhost:3000?id=101&name=anisul islam
+
+    - we can get the value using req.query.id and req.query.name
+
+    ```js
+    router.post("/", (req, res) => {
+      console.log(req.query);
+      console.log(req.query.id);
+      console.log(req.query.name);
+      res.send("I am get method of user route");
+    });
+    ```
 
 ### [2.7 HTTP Request part-2](https://youtu.be/141Q7XhGGS8)
 
 - example of routes parameter
+
   - http://localhost:3000/101
   - we can get the value using req.params.id
-  ```js
-  router.post("/:id", (req, res) => {
-    console.log(req.params.id);
-    res.send("I am get method of user route");
-  });
-  ```
+
+    ```js
+    router.post("/:id", (req, res) => {
+      console.log(req.params.id);
+      res.send("I am get method of user route");
+    });
+    ```
+
 - example of how to get data header requests
+
   ```js
   router.post("/", (req, res) => {
     console.log(req.header("id"));
@@ -741,6 +776,7 @@
 ### [2.9 send and receive from data](https://youtu.be/GXkth_xoG64)
 
 - create a index.html file inside views folder
+
   ```html
   <!DOCTYPE html>
   <html lang="en">
@@ -765,6 +801,7 @@
     </body>
   </html>
   ```
+
 - load a html file
 
   ```js
@@ -821,7 +858,7 @@
 
 - Step 4: you can make a comment using #
 
-  ```
+  ```js
   # server port
   PORT=3000
   ```
@@ -880,157 +917,168 @@
 - Controller is the connection point between Model and View. basically It deals with all the logic.
 - example of mvc file structure: setup a project and install necessary packages ( npm init -y && npm install nodemon express body-parser cors)
 
-  - <img width="203" alt="Screenshot 2022-04-26 at 05 13 08" src="https://user-images.githubusercontent.com/28184926/165205917-0b83ecc1-9145-40ac-b92f-b8e8cb7511b4.png">
-    controllers
-         - user.controller.js
-            ```js
-                const path = require("path");
-                const users = require("../models/user.model");
+  <img width="203" alt="Screenshot 2022-04-26 at 05 13 08" src="https://user-images.githubusercontent.com/28184926/165205917-0b83ecc1-9145-40ac-b92f-b8e8cb7511b4.png">
 
-                const getUser = (req, res) => {
-                  res.status(200).json({
-                    users,
-                  });
-                };
+- controllers - user.controller.js
 
-                const createUser = (req, res) => {
-                  const user = {
-                    username: req.body.username,
-                    email: req.body.email,
-                  };
-                  users.push(user);
-                  res.status(201).json(users);
-                };
+  ```js
+  const path = require("path");
+  const users = require("../models/user.model");
 
-                module.exports = { getUser, createUser };
-            ```
+  const getUser = (req, res) => {
+    res.status(200).json({
+      users,
+    });
+  };
 
-  - models
-    - user.model.js
-      ```js
-      const users = [
-        {
-          username: "anisul islam",
-          email: "lalalal@yahoo.com",
-        },
-        {
-          username: "rakibul islam",
-          email: "lalalal@yahoo.com",
-        },
-      ];
-      module.exports = users;
-      ```
-  - routes
+  const createUser = (req, res) => {
+    const user = {
+      username: req.body.username,
+      email: req.body.email,
+    };
+    users.push(user);
+    res.status(201).json(users);
+  };
 
-    - user.route.js
+  module.exports = { getUser, createUser };
+  ```
 
-      ```js
-      const express = require("express");
-      const { getUser, createUser } = require("../controllers/user.controller");
-      const router = express.Router();
+- models
 
-      router.get("/", getUser);
-      router.post("/", createUser);
+  - user.model.js
 
-      module.exports = router;
-      ```
+    ```js
+    const users = [
+      {
+        username: "anisul islam",
+        email: "lalalal@yahoo.com",
+      },
+      {
+        username: "rakibul islam",
+        email: "lalalal@yahoo.com",
+      },
+    ];
+    module.exports = users;
+    ```
 
-  - views
-    - index.html
-      ```html
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <title>Document</title>
-        </head>
-        <body>
-          <nav>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/api/users">Register</a></li>
-            </ul>
-          </nav>
-          <h1>Home Page</h1>
-        </body>
-      </html>
-      ```
-      - user.html
-      ```html
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="viewport" content="width=], initial-scale=1.0" />
-          <title>Document</title>
-        </head>
-        <body>
-          <nav>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/api/users">Register</a></li>
-            </ul>
-          </nav>
-          <h1>User Registration</h1>
-          <form action="/api/user" method="post">
-            <input type="text" name="username" placeholder="username" />
-            <input type="email" name="email" placeholder="email" />
-            <button type="submit">register</button>
-          </form>
-        </body>
-      </html>
-      ```
-  - .env
-    - `PORT=4000`
-  - app.js
+- routes
+
+  - user.route.js
 
     ```js
     const express = require("express");
-    const cors = require("cors");
-    const app = express();
-    const bodyParser = require("body-parser");
-    const userRouter = require("./routes/user.route");
-    // CORS
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(bodyParser.json());
-    app.use(cors());
+    const { getUser, createUser } = require("../controllers/user.controller");
+    const router = express.Router();
 
-    app.use("/api/users", userRouter);
+    router.get("/", getUser);
+    router.post("/", createUser);
 
-    app.get("/", (req, res) => {
-      res.sendFile(__dirname + "/views/index.html");
-    });
-
-    // routes not found error
-    app.use((req, res, next) => {
-      res.status(404).json({
-        message: "resource not found",
-      });
-    });
-
-    // server error
-    app.use((err, req, res, next) => {
-      console.log(err);
-      res.status(500).json({
-        message: "something broke",
-      });
-    });
-
-    module.exports = app;
+    module.exports = router;
     ```
 
-  - index.js
-    ```js
-    require("dotenv").config();
-    const app = require("./app");
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`server is running at http://localhost:${PORT}`);
-    });
+- views
+
+  - index.html
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+      </head>
+      <body>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/api/users">Register</a></li>
+          </ul>
+        </nav>
+        <h1>Home Page</h1>
+      </body>
+    </html>
     ```
+
+    - user.html
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=], initial-scale=1.0" />
+        <title>Document</title>
+      </head>
+      <body>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/api/users">Register</a></li>
+          </ul>
+        </nav>
+        <h1>User Registration</h1>
+        <form action="/api/user" method="post">
+          <input type="text" name="username" placeholder="username" />
+          <input type="email" name="email" placeholder="email" />
+          <button type="submit">register</button>
+        </form>
+      </body>
+    </html>
+    ```
+
+- .env
+  - `PORT=4000`
+- app.js
+
+  ```js
+  const express = require("express");
+  const cors = require("cors");
+  const app = express();
+  const bodyParser = require("body-parser");
+  const userRouter = require("./routes/user.route");
+  // CORS
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json());
+  app.use(cors());
+
+  app.use("/api/users", userRouter);
+
+  app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/views/index.html");
+  });
+
+  // routes not found error
+  app.use((req, res, next) => {
+    res.status(404).json({
+      message: "resource not found",
+    });
+  });
+
+  // server error
+  app.use((err, req, res, next) => {
+    console.log(err);
+    res.status(500).json({
+      message: "something broke",
+    });
+  });
+
+  module.exports = app;
+  ```
+
+- index.js
+
+  ```js
+  require("dotenv").config();
+  const app = require("./app");
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`server is running at http://localhost:${PORT}`);
+  });
+  ```
+
+### [2.15] Validation with express-validator
+
+- install express-validator
