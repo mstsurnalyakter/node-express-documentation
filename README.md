@@ -1082,3 +1082,836 @@
 ### [2.15] Validation with express-validator
 
 - install express-validator
+
+<hr />
+<hr />
+
+## Version-2 Express server with a project
+
+## Express tutorial
+
+## 1. Create an express server
+
+- initialize npm and install packages
+
+```js
+npm init -y && npm install express
+npm install -D nodemon
+```
+
+```js
+// index.js
+const express = require("express");
+
+const app = express();
+
+const port = 3001;
+
+app.listen(port, () => {
+  console.log(`server is running at http://localhost:${port}`);
+});
+```
+
+```json
+//package.json
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "start-dev": "nodemon src/index.js"
+  },
+```
+
+## 2. setting environment variables
+
+## 3. Handle GET Request -> GET all products
+
+- routing plan using HTTP methods for RESTful Services
+- HTTP Verbs -> GET, POST, PUT, PATCH, DELETE helps us to CRUD operations
+
+```js
+GET /products - get all the products -> 200 (ok) / 404 (not found)
+GET /products/:id - get a single product -> 200 / 404
+POST /products/ - create a single product -> 201 (Created) / 404 (Not Found) / 409 (Conflict -> Already Exist)
+PUT /products/:id - update/replace every resource in a single product -> 200 (Ok) / 404 (Not Found) / 405 (Method Not Allowed)
+PATCH /products/:id - update/Modify product itself -> 200 (Ok) / 404 (Not Found)  / 405 (Method Not Allowed)
+DELETE /products/:id - delete a single product -> 200 (Ok) / 404 (Not Found) / 405 (Method Not Allowed)
+
+```
+
+```js
+// app.use()
+app.use("/", (req, res) => {
+  res.send("home page");
+});
+
+// now use ThunderClient extension for testing the API; you will see app.use() accept all http methods
+
+// app.get() - will only accept get method
+app.get("/", (req, res) => {
+  res.send("home page");
+});
+```
+
+```js
+let products = [
+  {
+    id: 1,
+    title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+    price: 109.95,
+  },
+  {
+    id: 2,
+    title: "Mens Casual Premium Slim Fit T-Shirts ",
+    price: 22.3,
+  },
+];
+
+app.get("/products", (req, res) => {
+  res.send(products);
+});
+```
+
+## 4. Middleware
+
+## 5. Handling error
+
+```js
+// client error
+app.use((req, res) => {
+  res.send("<h2>Page not found 404</h2>");
+});
+
+// server error
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.send("Something broke!");
+});
+```
+
+## 6. Response Object
+
+- text, HTML, JSON
+
+```js
+res.send("hello");
+res.send({
+  success: true,
+  user: { id: 1, name: "anisul" },
+});
+res.sendFile("hello.html");
+```
+
+## 7. [Status codes](https://devhints.io/http-status)
+
+```js
+app.get("/", (req, res) => {
+  res.status(200).send("home page");
+});
+
+app.get("/products", (req, res) => {
+  res.status(200).send(products);
+});
+
+app.use((req, res) => {
+  res.status(404).send("<h2>Page not found 404</h2>");
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+```
+
+## 8. Request Object
+
+- request with query parameter - req.query.parameterName
+
+- request with route parameters - req.params.parameterName
+
+- request with headers - req.header(key)
+
+- request with json data / form data inside body - req.body.parameterName
+
+- query parameter has question mark; search something on google.
+
+- example of query parameter - http://localhost:3000?id=101&name=anisul islam
+
+- we can get the value using req.query.id and req.query.name
+
+```js
+router.post("/", (req, res) => {
+  console.log(req.query);
+  console.log(req.query.id);
+  console.log(req.query.name);
+  res.send("I am get method of user route");
+});
+```
+
+## 9. Handle GET Request -> get a single product
+
+```js
+// route parameter
+app.get("/products/:id", (req, res) => {
+  const singleProduct = products.find(
+    (product) => product.id === Number(req.params.id)
+  );
+  res.status(200).send(singleProduct);
+});
+
+// query parameter
+const sortItems = (sortBy, items) => {
+  if (sortBy === "ASC") {
+    return items.sort((a, b) => a.price - b.price);
+  } else if (sortBy === "DESC") {
+    return items.sort((a, b) => b.price - a.price);
+  }
+};
+
+const sortItems = (sortBy, items) => {
+  if (sortBy === "ASC") {
+    return items.sort((a, b) => a.price - b.price);
+  } else if (sortBy === "DESC") {
+    return items.sort((a, b) => b.price - a.price);
+  }
+};
+
+app.get("/products", (req, res) => {
+  const maxPrice = Number(req.query.maxPrice);
+  const sortBy = req.query.sortBy;
+  let result;
+  if (maxPrice) {
+    result = products.filter((product) => product.price <= maxPrice);
+    result = sortBy ? sortItems(sortBy, result) : result;
+    res.status(200).send(result);
+  } else {
+    res.status(200).send(products);
+  }
+});
+```
+
+## 10. Handle POST Request -> create a single product
+
+```js
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.post("/products", (req, res) => {
+  const newProduct = {
+    id: Number(req.body.id),
+    title: req.body.title,
+    price: req.body.price,
+  };
+  products.push(newProduct);
+  res.status(200).send(newProduct);
+});
+```
+
+## 11. Handle DELETE Request -> delete a single product
+
+```js
+app.delete("/products/:id", (req, res) => {
+  products = products.filter((product) => product.id !== Number(req.params.id));
+  res.status(200).send(products);
+});
+```
+
+## 12. Handle PUT Request -> update a single product
+
+```js
+app.put("/products/:id", (req, res) => {
+  products
+    .filter((product) => product.id === Number(req.params.id))
+    .map((product) => {
+      product.title = req.body.title;
+      product.price = req.body.price;
+    });
+  res.status(200).send(products);
+});
+```
+
+## 13. MVC Structure - Routing with express Router
+
+- create a router folder and then create a product file where we will move all our routes
+
+```js
+//routes -> product.js
+const express = require("express");
+const router = express.Router();
+
+let products = [
+  {
+    id: 1,
+    title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+    price: 109.95,
+  },
+  {
+    id: 2,
+    title: "Mens Casual Premium Slim Fit T-Shirts ",
+    price: 22.3,
+  },
+  {
+    id: 3,
+    title: "Mens Cotton Jacket",
+    price: 55.99,
+  },
+  { id: 4, title: "Mens Casual Slim Fit", price: 15.99 },
+];
+
+const sortItems = (sortBy, items) => {
+  if (sortBy === "ASC") {
+    return items.sort((a, b) => a.price - b.price);
+  } else if (sortBy === "DESC") {
+    return items.sort((a, b) => b.price - a.price);
+  }
+};
+
+router.get("/products", (req, res) => {
+  const maxPrice = Number(req.query.maxPrice);
+  const sortBy = req.query.sortBy;
+  let result;
+  if (maxPrice) {
+    result = products.filter((product) => product.price <= maxPrice);
+    result = sortBy ? sortItems(sortBy, result) : result;
+    res.status(200).send(result);
+  } else {
+    res.status(200).send(products);
+  }
+});
+
+router.get("/products/:id", (req, res) => {
+  const singleProduct = products.find(
+    (product) => product.id === Number(req.params.id)
+  );
+  res.status(200).send(singleProduct);
+});
+
+router.post("/products", (req, res) => {
+  const newProduct = {
+    id: Number(req.body.id),
+    title: req.body.title,
+    price: req.body.price,
+  };
+  products.push(newProduct);
+  res.status(200).send(newProduct);
+});
+
+router.put("/products/:id", (req, res) => {
+  products
+    .filter((product) => product.id === Number(req.params.id))
+    .map((product) => {
+      product.title = req.body.title;
+      product.price = req.body.price;
+    });
+  res.status(200).send(products);
+});
+
+router.delete("/products/:id", (req, res) => {
+  products = products.filter((product) => product.id !== Number(req.params.id));
+  res.status(200).send(products);
+});
+
+module.exports = router;
+
+// inside index.js
+const productRouters = require("./router/products");
+app.use(productRouters);
+```
+
+- remove all the products and in index.js use `app.use("/products", productRouters);`
+
+## 14. MVC Structure - Controller part
+
+```js
+// routes -> products.js
+const express = require("express");
+const {
+  getAllProducts,
+  getSingleProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} = require("../controller/products");
+const router = express.Router();
+
+router.get("/", getAllProducts).get("/:id", getSingleProduct);
+
+router.post("/", createProduct);
+
+router.put("/:id", updateProduct);
+
+router.delete("/:id", deleteProduct);
+
+module.exports = router;
+
+// controller -> products.js
+let products = [
+  {
+    id: 1,
+    title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+    price: 109.95,
+  },
+  {
+    id: 2,
+    title: "Mens Casual Premium Slim Fit T-Shirts ",
+    price: 22.3,
+  },
+  {
+    id: 3,
+    title: "Mens Cotton Jacket",
+    price: 55.99,
+  },
+  { id: 4, title: "Mens Casual Slim Fit", price: 15.99 },
+];
+
+const sortItems = (sortBy, items) => {
+  if (sortBy === "ASC") {
+    return items.sort((a, b) => a.price - b.price);
+  } else if (sortBy === "DESC") {
+    return items.sort((a, b) => b.price - a.price);
+  }
+};
+
+const getAllProducts = (req, res) => {
+  const maxPrice = Number(req.query.maxPrice);
+  const sortBy = req.query.sortBy;
+  let result;
+  if (maxPrice) {
+    result = products.filter((product) => product.price <= maxPrice);
+    result = sortBy ? sortItems(sortBy, result) : result;
+    res.status(200).send(result);
+  } else {
+    res.status(200).send(products);
+  }
+};
+
+const getSingleProduct = (req, res) => {
+  const singleProduct = products.find(
+    (product) => product.id === Number(req.params.id)
+  );
+  res.status(200).send(singleProduct);
+};
+
+const createProduct = (req, res) => {
+  const newProduct = {
+    id: Number(req.body.id),
+    title: req.body.title,
+    price: req.body.price,
+  };
+  products.push(newProduct);
+  res.status(200).send(newProduct);
+};
+
+const updateProduct = (req, res) => {
+  products
+    .filter((product) => product.id === Number(req.params.id))
+    .map((product) => {
+      product.title = req.body.title;
+      product.price = req.body.price;
+    });
+  res.status(200).send(products);
+};
+
+const deleteProduct = (req, res) => {
+  products = products.filter((product) => product.id !== Number(req.params.id));
+  res.status(200).send(products);
+};
+
+module.exports = {
+  getAllProducts,
+  getSingleProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
+```
+
+## 15. MVC Structure - Model part
+
+```js
+// model -> products.js
+let products = [
+  {
+    id: 1,
+    title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+    price: 109.95,
+  },
+  {
+    id: 2,
+    title: "Mens Casual Premium Slim Fit T-Shirts ",
+    price: 22.3,
+  },
+  {
+    id: 3,
+    title: "Mens Cotton Jacket",
+    price: 55.99,
+  },
+  { id: 4, title: "Mens Casual Slim Fit", price: 15.99 },
+];
+
+module.exports = products;
+```
+
+## 16. Deploy on Heroku
+
+- `const port = process.env.PORT || 3001;`
+- Procfile -> `web: node index.js`
+- add .gitignore file -> `node_modules_`
+
+## 17. Database
+
+- save(), find(), findOne(), deleteOne(), updateOne()
+
+```js
+const mongoose = require("mongoose");
+mongoose
+  .connect("mongodb://localhost:27017/testProduct")
+  .then(() => console.log("DB is connected"))
+  .catch((error) => {
+    console.log(error.message);
+    process.exit(1);
+  });
+
+// schema & model
+const { model } = require("mongoose");
+const mongoose = require("mongoose");
+
+const productsSchema = new mongoose.Schema({
+  id: Number,
+  title: String,
+  price: Number,
+});
+
+module.exports = model("Product", productsSchema);
+
+// controller
+const Products = require("../model/products");
+
+// Create
+const createProduct = async (req, res) => {
+  try {
+    const newProduct = new Products({
+      id: Number(req.body.id),
+      title: req.body.title,
+      price: req.body.price,
+    });
+    await newProduct.save();
+    res.status(200).send(newProduct);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+// Read
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Products.find();
+    res.status(200).send(products);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+// read all the products
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Products.find();
+    const maxPrice = Number(req.query.maxPrice);
+    const sortBy = req.query.sortBy;
+    let result;
+    if (maxPrice) {
+      result = await Products.find({ price: { $lt: maxPrice } });
+      result = sortBy ? sortItems(sortBy, result) : result;
+      res.status(200).send(result);
+    } else {
+      res.status(200).send(products);
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+// read single product by id
+const getSingleProduct = async (req, res) => {
+  try {
+    // const id = parseInt(req.params.id);
+    const singleProduct = await Products.findOne({ req.params.id });
+    res.status(200).send(singleProduct);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+// delete one product by id
+const deleteProduct = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const singleProduct = await Products.deleteOne({ id });
+    res.status(200).send({ success: true });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+// update a product by id
+const updateProduct = async (req, res) => {
+  try {
+    await Products.updateOne(
+      { id: req.params.id },
+      {
+        $set: {
+          title: req.body.title,
+          price: req.body.price,
+        },
+      }
+    );
+    res.status(200).send({ success: true });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+```
+
+## 18. cors setup
+
+- cors setup
+
+```js
+npm install cors
+app.use(cors())
+```
+
+## 19. connection from front end
+
+```js
+import "./App.css";
+import React, { useEffect, useState } from "react";
+import NewProduct from "./components/NewProduct";
+
+const URL = "http://localhost:4000/products";
+function App() {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // update
+  const [selectedProduct, setSelectedProduct] = useState({
+    title: "",
+    price: "",
+  });
+  const [updateFlag, setUpdateFlag] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState("");
+
+  const getAllProducts = () => {
+    fetch(URL)
+      .then((res) => {
+        if (!res.ok) {
+          throw Error("could not fetch");
+        }
+        return res.json();
+      })
+      .then((result) => {
+        setProducts(result);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+  useEffect(() => {
+    getAllProducts();
+  }, []);
+
+  const handleDelete = (id) => {
+    fetch(URL + `${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw Error("could not delete");
+        }
+        getAllProducts();
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  };
+
+  const addProduct = (product) => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(product),
+    })
+      .then((res) => {
+        if (res.status === 201) {
+          getAllProducts();
+        } else {
+          throw new Error("could not create new product");
+        }
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  };
+
+  const handleEdit = (id) => {
+    setSelectedProductId(id);
+    setUpdateFlag(true);
+    const filteredData = products.filter((product) => product.id === id);
+    setSelectedProduct({
+      title: filteredData[0].title,
+      price: filteredData[0].price,
+    });
+  };
+
+  const handleUpdate = (product) => {
+    console.log(selectedProductId);
+    fetch(URL + `/${selectedProductId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(product),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("failed to update");
+        }
+        getAllProducts();
+        setUpdateFlag(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  };
+
+  return (
+    <div className="App">
+      <h1>Products</h1>
+      {isLoading && <h2>Loading...</h2>}
+      {error && <h2>{error}</h2>}
+
+      {updateFlag ? (
+        <NewProduct
+          btnText="Update Product"
+          selectedProduct={selectedProduct}
+          handleSubmitData={handleUpdate}
+        />
+      ) : (
+        <NewProduct btnText="Add Product" handleSubmitData={addProduct} />
+      )}
+
+      {products.length > 0 &&
+        products.map((product) => (
+          <article key={product.id}>
+            <h3>{product.title}</h3>
+            <p>{product.price}</p>
+            <button
+              onClick={() => {
+                handleEdit(product.id);
+              }}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => {
+                handleDelete(product.id);
+              }}
+            >
+              Delete
+            </button>
+          </article>
+        ))}
+    </div>
+  );
+}
+
+export default App;
+
+
+// NewProduct.js
+import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+const NewProduct = ({ handleSubmitData, selectedProduct, btnText }) => {
+  const [product, setProduct] = useState({
+    title: "",
+    price: "",
+  });
+
+  const { title, price } = product;
+
+  useEffect(() => {
+    setProduct({
+      title: selectedProduct.title,
+      price: selectedProduct.price,
+    });
+  }, [selectedProduct]);
+
+  const handleChange = (e) => {
+    const selectedField = e.target.name;
+    const selectedValue = e.target.value;
+    setProduct((prevState) => {
+      return { ...prevState, [selectedField]: selectedValue };
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newProduct = {
+      id: Number(uuidv4()),
+      title: product.title,
+      price: product.price,
+    };
+    handleSubmitData(newProduct);
+    setProduct({
+      title: "",
+      price: "",
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="field-group">
+        <label htmlFor="title">Title: </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value={title}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div className="field-group">
+        <label htmlFor="price">Price: </label>
+        <input
+          type="text"
+          id="price"
+          name="price"
+          value={price}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <button type="submit" className="btn">
+        {btnText}
+      </button>
+    </form>
+  );
+};
+
+NewProduct.defaultProps = {
+  selectedProduct: {
+    title: "",
+    price: "",
+  },
+};
+
+export default NewProduct;
+
+```
