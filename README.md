@@ -210,6 +210,10 @@
 
   const joinName = path.join(__dirname + "/../views");
   console.log(joinName);
+
+  // How to find root of a project
+  const path = require("path");
+  console.log(path.dirname(require.main.filename));
   ```
 
 ### [1.6 Built-in module - http module](https://youtu.be/PmLJO403hvc)
@@ -225,6 +229,8 @@
 
   const server = http.createServer((req, res) => {
     // res.end("welcome to the server");
+
+    // end the response with a response message
     res.end("<h1>welcome to the server</h1>");
   });
 
@@ -245,6 +251,8 @@
 
 ### [1.7 request, response and status code](https://youtu.be/lHfnjUP-N4E)
 
+- req.url, req.method
+- response can be string, json, html etc.
 - [status code cheatsheet](https://devhints.io/http-status)
 - Example
 
@@ -522,6 +530,7 @@
 
 - always check the documentation of [express.js](https://www.npmjs.com/package/express)
 - Express.js is a node.js framework which makes life easier
+- no more hassle of setting Content-Type
 - easy to learn and time saving facilitites available because we have ready made stuff in express.js
 - MERN Stack, NERD stack, PERN stack
 
@@ -695,7 +704,34 @@
   module.exports = router;
   ```
 
-### [2.5 HTTP Response](https://youtu.be/S7oFcdUiF1k)
+### [2.5 regular expression & wild card Router]()
+
+```js
+//regular expression
+// we can use 0-9 but maximum 4 digits combination
+router.get("/search/:id([0-9]{4})", (req, res) => {
+  res.status(200).send("serach user by id" + req.params.id);
+});
+
+// only letters allowed with maximum 5 characters
+router.get("/search-username/:name([a-zA-Z]{5})", (req, res) => {
+  res.status(200).send("serach user by name" + req.params.name);
+});
+
+// wild cart
+router.get("*", (req, res) => {
+  res.status(404).send({
+    message: "url not found",
+  });
+});
+```
+
+### [2.6 Express generator]()
+
+- package `npx espress-generator`
+- create a basic standard scalable folder structure with necessary codes
+
+### [2.7 HTTP Response](https://youtu.be/S7oFcdUiF1k)
 
 - response can be text, html, json
 - res.send("some text here");
@@ -708,7 +744,7 @@
 - res.end()
 - res.append(key, value); this will set as response header
 
-### [2.6 HTTP Request part-1](https://youtu.be/141Q7XhGGS8)
+### [2.8 HTTP Request part-1](https://youtu.be/141Q7XhGGS8)
 
 - request with query parameter - req.query.parameterName
 - request with route parameters - req.params.parameterName
@@ -729,7 +765,7 @@
     });
     ```
 
-### [2.7 HTTP Request part-2](https://youtu.be/141Q7XhGGS8)
+### [2.9 HTTP Request part-2](https://youtu.be/141Q7XhGGS8)
 
 - example of routes parameter
 
@@ -752,7 +788,7 @@
   });
   ```
 
-### [2.8 HTTP Request part-3](https://youtu.be/141Q7XhGGS8)
+### [2.10 HTTP Request part-3](https://youtu.be/141Q7XhGGS8)
 
 - example of request with json data
 
@@ -773,7 +809,7 @@
   });
   ```
 
-### [2.9 send and receive from data](https://youtu.be/GXkth_xoG64)
+### [2.11 send and receive from data](https://youtu.be/GXkth_xoG64)
 
 - create a index.html file inside views folder
 
@@ -842,9 +878,9 @@
   });
   ```
 
-### [2.10 Area Calculator](https://youtu.be/u1BgJg6YzYM)
+### [2.12 Area Calculator](https://youtu.be/u1BgJg6YzYM)
 
-### [2.11 How to set .env variables](https://youtu.be/dxwUjw2Jyfc)
+### [2.13 How to set .env variables](https://youtu.be/dxwUjw2Jyfc)
 
 - Step 1: create an .env file in the root directory
 
@@ -871,7 +907,7 @@
 
 - Optional: DotENV Extension - nice syntax highlighting in your .env files.
 
-### [2.12 Middlewares](https://youtu.be/byiRZfg2JaE)
+### [2.14 Middlewares](https://youtu.be/byiRZfg2JaE)
 
 - what is middleware?
   - middleware is a function; it contains request obejct, response object and next function
@@ -880,6 +916,12 @@
   - we can make changes to the request and response object
   - we can end the request and response cycle.
   - we can call the next middleware in the stack.
+- some common usage of middleware
+
+  - user is authenticated or not
+  - check user is active or not
+  - data is correct / all data available
+
 - Types of middleware
 
   - Application Level middleware: app.use(), app.METHOD(); here METHOD can be get, put, post, delete, patch
@@ -905,11 +947,11 @@
     });
     ```
 
-### [2.13 express static Middlewares](https://youtu.be/lqRIy6d6D48)
+### [2.15 express static Middlewares](https://youtu.be/lqRIy6d6D48)
 
 - `app.use(express.static());` helps us to use static resources such as css and image inside our server
 
-### [2.14 MVC Architecture](https://youtu.be/BDeBB9b2L9I)
+### [2.16 MVC Architecture](https://youtu.be/BDeBB9b2L9I)
 
 - MVC Architecture means Model View Controller Architecture
 - Model holds all the database related codes
@@ -1079,12 +1121,9 @@
   });
   ```
 
-### [2.15] Validation with express-validator
+### [2.17] Validation with express-validator
 
 - install express-validator
-
-<hr />
-<hr />
 
 ## Version-2 Express server with a project
 
@@ -1093,6 +1132,7 @@
 ## 1. Create an express server
 
 - initialize npm and install packages
+- nodemon montior the changes of our code and update the server
 
 ```js
 npm init -y && npm install express
@@ -1331,6 +1371,8 @@ app.put("/products/:id", (req, res) => {
 
 ## 13. MVC Structure - Routing with express Router
 
+- Separation of Concerns
+- Model, View, Controllers
 - create a router folder and then create a product file where we will move all our routes
 
 ```js
@@ -1550,6 +1592,8 @@ let products = [
 
 module.exports = products;
 ```
+
+## 15. EJS
 
 ## 16. Deploy on Heroku
 
@@ -1915,3 +1959,25 @@ NewProduct.defaultProps = {
 export default NewProduct;
 
 ```
+
+## CORS Setup
+
+## REST API
+
+- basically we are going to return some data
+- Reperesentational State Transfer
+- Response data -> text, html, xml, json
+- HTTP methods -> GET, POST, PUT (CREATE/OVERRIDE A RESOURCE) /PATCH, DELETE
+- Routing
+
+## Updating
+
+### Lecture 1 - Course plan
+
+### Lecture 2 - basic setup
+
+- Node.js installation and version checkup
+- typescript, ts-node
+- nodemon : rsestart server after file changing in server
+- postman / insomnia
+- mongodb
